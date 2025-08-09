@@ -1,9 +1,7 @@
 function Get-ExpiredPasswords {
     [CmdletBinding()]
     param(
-        # ile dni hasło może żyć – domyślnie 90
         [TimeSpan]$MaxAge    = (New-TimeSpan -Days 90),
-        # skąd szukamy – domyślnie cały las
         [string]  $SearchBase = (Get-ADDomain).DistinguishedName
     )
 
@@ -18,5 +16,6 @@ function Get-ExpiredPasswords {
              $_.PasswordLastSet -lt $cutoff)                      
         } |
         Select-Object SamAccountName, PasswordLastSet,
+                        @{N='Reason';E={ if ($_.PasswordLastSet) { "PasswordAge>${MaxAgeDays}d" } else { 'PasswordUnset' } }},
                       @{N='Severity';E={'Medium'}}
 }

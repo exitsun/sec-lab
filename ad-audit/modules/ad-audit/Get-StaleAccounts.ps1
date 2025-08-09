@@ -11,10 +11,11 @@ function Get-StaleAccounts {
         Where-Object {
               $_.Enabled -eq $true -and (                       
                   $_.lastLogonDate -eq $null   -or              
-                  $_.lastLogonDate -lt $cutoff                   
+                  $_.lastLogonDate -lt $cutoff                 
               )
         } |
         Select-Object SamAccountName,
+                      @{N='Reason';E={ if ($_.PasswordLastSet) { "PasswordAge>${MaxAgeDays}d" } else { 'PasswordUnset' } }},
                       @{N='LastLogonDate';E={ $_.lastLogonDate }},
                       @{N='Severity';     E={ 'High' }}
 }
